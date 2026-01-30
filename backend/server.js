@@ -11,7 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ MongoDB Atlas Connection
+// ✅ Root Route (IMPORTANT)
+app.get("/", (req, res) => {
+  res.send("Library Management System Backend Running 🚀");
+});
+
+// ✅ MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
