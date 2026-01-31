@@ -1,64 +1,29 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:5000";
+import api from "../../api";
 
 export default function DeleteBook() {
+  const [title, setTitle] = useState("");
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState("");
-  const [msg, setMsg] = useState("");
-
   const deleteBook = async () => {
-    setMsg("");
-
-    if (!title) {
-      setMsg("❌ Please enter book title");
-      return;
-    }
-
     try {
-      await axios.delete(`${API}/books/title/${title}`);
-      alert("✅ Book Deleted Successfully");
+      await api.delete(`/books/title/${title}`);
+      alert("Book Deleted");
       navigate("/book");
-    } catch (err) {
-      if (err.response?.data?.msg) {
-        setMsg("❌ " + err.response.data.msg);
-      } else {
-        setMsg("❌ Server error");
-      }
+    } catch {
+      alert("Book not found");
     }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>🗑 Delete Book</h2>
-
-        {msg && <p style={styles.msg}>{msg}</p>}
-
-        <input
-          style={styles.input}
-          placeholder="Enter Book Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <button style={styles.deleteBtn} onClick={deleteBook}>
-          Delete Book
-        </button>
-
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/book")}
-        >
-          ⬅ Back
-        </button>
-      </div>
+    <div>
+      <input placeholder="Book Title" onChange={e => setTitle(e.target.value)} />
+      <button onClick={deleteBook}>Delete</button>
     </div>
   );
 }
+
 
 /* ================= STYLES ================= */
 

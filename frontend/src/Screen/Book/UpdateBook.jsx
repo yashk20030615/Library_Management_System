@@ -1,146 +1,33 @@
-import axios from "axios";
 import { useState } from "react";
+import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
-const API = "http://localhost:5000";
-
 export default function UpdateBook() {
+  const [title, setTitle] = useState("");
+  const [form, setForm] = useState({});
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState("");
-  const [found, setFound] = useState(false);
-  const [bookId, setBookId] = useState("");
-
-  const [form, setForm] = useState({
-    genre: "",
-    publication_year: "",
-    author_id: "",
-  });
-
-  const [msg, setMsg] = useState("");
-
-  // 🔍 Find Book
   const findBook = async () => {
-    if (!title) {
-      setMsg("❌ Please enter book title");
-      return;
-    }
-
-    try {
-      const res = await axios.get(
-        `${API}/books/title/${title}`
-      );
-
-      const book = res.data;
-
-      setBookId(book._id);
-      setForm({
-        genre: book.genre,
-        publication_year: book.publication_year,
-        author_id: book.author_id,
-      });
-
-      setFound(true);
-      setMsg("");
-    } catch (err) {
-      setMsg("❌ Book not found");
-    }
+    const res = await api.get(`/books/title/${title}`);
+    setForm(res.data);
   };
 
-  // 🔁 Update
   const updateBook = async () => {
-    if (!form.genre || !form.publication_year || !form.author_id) {
-      setMsg("❌ All fields are required");
-      return;
-    }
-
-    try {
-      await axios.put(`${API}/books/${bookId}`, form);
-      alert("✅ Book Updated Successfully");
-      navigate("/book");
-    } catch (err) {
-      setMsg("❌ Update failed");
-    }
+    await api.put(`/books/${form._id}`, form);
+    alert("Updated");
+    navigate("/book");
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>✏️ Update Book</h2>
+    <div>
+      <input placeholder="Title" onChange={e => setTitle(e.target.value)} />
+      <button onClick={findBook}>Find</button>
 
-        {msg && <p style={styles.msg}>{msg}</p>}
-
-        <input
-          style={styles.input}
-          placeholder="Enter Book Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        {!found && (
-          <>
-            <button style={styles.primary} onClick={findBook}>
-              🔍 Find Book
-            </button>
-
-            <button
-              style={styles.back}
-              onClick={() => navigate("/book")}
-            >
-              ⬅ Back
-            </button>
-          </>
-        )}
-
-        {found && (
-          <>
-            <input
-              style={styles.input}
-              placeholder="Genre"
-              value={form.genre}
-              onChange={(e) =>
-                setForm({ ...form, genre: e.target.value })
-              }
-            />
-
-            <input
-              style={styles.input}
-              placeholder="Publication Year"
-              value={form.publication_year}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  publication_year: e.target.value,
-                })
-              }
-            />
-
-            <input
-              style={styles.input}
-              placeholder="Author ID"
-              value={form.author_id}
-              onChange={(e) =>
-                setForm({ ...form, author_id: e.target.value })
-              }
-            />
-
-            <button style={styles.update} onClick={updateBook}>
-              ✅ Update Book
-            </button>
-
-            <button
-              style={styles.back}
-              onClick={() => navigate("/book")}
-            >
-              ⬅ Back
-            </button>
-          </>
-        )}
-      </div>
+      <input value={form.genre || ""} onChange={e => setForm({...form, genre:e.target.value})}/>
+      <button onClick={updateBook}>Update</button>
     </div>
   );
 }
-
 
 const styles = {
   page: {

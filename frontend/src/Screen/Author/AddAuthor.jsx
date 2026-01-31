@@ -1,8 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:5000";
+import api from "../../api";
 
 export default function AddAuthor() {
   const navigate = useNavigate();
@@ -25,24 +23,15 @@ export default function AddAuthor() {
     }
 
     try {
-      await axios.post(`${API}/authors`, form);
+      await api.post("/authors", form);
 
       setType("success");
       setMsg("Author added successfully");
 
-      setForm({
-        author_id: "",
-        name: "",
-        bio: "",
-        nationality: "",
-      });
-
       setTimeout(() => navigate("/author"), 1500);
     } catch (err) {
       setType("error");
-      setMsg(
-        err.response?.data?.msg || "Something went wrong"
-      );
+      setMsg("Something went wrong");
     }
   };
 
@@ -57,49 +46,32 @@ export default function AddAuthor() {
           </p>
         )}
 
-        <input
-          placeholder="Author ID"
+        <input placeholder="Author ID"
           value={form.author_id}
-          onChange={(e) =>
-            setForm({ ...form, author_id: e.target.value })
-          }
+          onChange={e => setForm({ ...form, author_id: e.target.value })}
           style={styles.input}
         />
 
-        <input
-          placeholder="Name"
+        <input placeholder="Name"
           value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
+          onChange={e => setForm({ ...form, name: e.target.value })}
           style={styles.input}
         />
 
-        <input
-          placeholder="Bio"
+        <input placeholder="Bio"
           value={form.bio}
-          onChange={(e) =>
-            setForm({ ...form, bio: e.target.value })
-          }
+          onChange={e => setForm({ ...form, bio: e.target.value })}
           style={styles.input}
         />
 
-        <input
-          placeholder="Nationality"
+        <input placeholder="Nationality"
           value={form.nationality}
-          onChange={(e) =>
-            setForm({ ...form, nationality: e.target.value })
-          }
+          onChange={e => setForm({ ...form, nationality: e.target.value })}
           style={styles.input}
         />
 
-        <button onClick={submit} style={styles.save}>
-          Add Author
-        </button>
-
-        <button onClick={() => navigate("/author")} style={styles.back}>
-          Back
-        </button>
+        <button onClick={submit} style={styles.save}>Add Author</button>
+        <button onClick={() => navigate("/author")} style={styles.back}>Back</button>
       </div>
     </div>
   );

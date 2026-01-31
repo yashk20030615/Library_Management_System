@@ -1,83 +1,27 @@
-import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:5000";
+import api from "../../api";
 
 export default function DisplayBooksByAuthor() {
-  const navigate = useNavigate();
-
-  const [authorId, setAuthorId] = useState("");
+  const [id, setId] = useState("");
   const [books, setBooks] = useState([]);
-  const [msg, setMsg] = useState("");
 
   const fetchBooks = async () => {
-    if (!authorId) {
-      setMsg("❌ Please enter Author ID");
-      setBooks([]);
-      return;
-    }
-
-    try {
-      const res = await axios.get(
-        `${API}/books/author/${authorId}`
-      );
-
-      if (res.data.length === 0) {
-        setMsg("❌ No books found for this Author");
-        setBooks([]);
-      } else {
-        setBooks(res.data);
-        setMsg("");
-      }
-    } catch (error) {
-      setMsg("❌ Invalid Author ID");
-      setBooks([]);
-    }
+    const res = await api.get(`/books/author/${id}`);
+    setBooks(res.data);
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>📚 Display Books By Author</h2>
+    <div>
+      <input placeholder="Author ID" onChange={e => setId(e.target.value)} />
+      <button onClick={fetchBooks}>Fetch</button>
 
-        {msg && <p style={styles.msg}>{msg}</p>}
-
-        <input
-          style={styles.input}
-          placeholder="Enter Author ID"
-          value={authorId}
-          onChange={(e) => setAuthorId(e.target.value)}
-        />
-
-        <button style={styles.primary} onClick={fetchBooks}>
-          📖 Display
-        </button>
-
-        <button
-          style={styles.back}
-          onClick={() => navigate("/book")}
-        >
-          ⬅ Back
-        </button>
-
-        {/* RESULT */}
-        {books.length > 0 && (
-          <div style={styles.resultBox}>
-            <h3>📚 Books List</h3>
-            {books.map((book, index) => (
-              <div key={index} style={styles.bookCard}>
-                <p><b>Title:</b> {book.title}</p>
-                <p><b>Genre:</b> {book.genre}</p>
-                <p><b>Year:</b> {book.publication_year}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {books.map(b => (
+        <p key={b._id}>{b.title}</p>
+      ))}
     </div>
   );
 }
+
 
 const styles = {
   page: {

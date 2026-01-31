@@ -1,75 +1,45 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../api";
 
 export default function DeleteAuthor() {
   const [id, setId] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
+  const [msg, setMsg] = useState("");
   const navigate = useNavigate();
 
   const deleteAuthor = async () => {
-    setMessage("");
-    setError("");
-
-    // Validation
-    if (!id.trim()) {
-      setError("❌ Please enter Author ID");
-      return;
-    }
-
-    const confirm = window.confirm(
-      "Are you sure you want to delete this author?"
-    );
-    if (!confirm) return;
+    if (!id) return alert("Enter ID");
 
     try {
-      const res = await axios.delete(
-        `http://localhost:5000/authors/${id}`
-      );
-
-      setMessage("✅ Author deleted successfully");
+      await api.delete(`/authors/${id}`);
+      setMsg("Author deleted successfully");
       setId("");
-    } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.msg);
-      } else {
-        setError("❌ Author not found");
-      }
+    } catch {
+      setMsg("Author not found");
     }
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={styles.title}>🗑 Delete Author</h2>
+        <h2>Delete Author</h2>
 
-        {/* Message */}
-        {error && <p style={styles.error}>{error}</p>}
-        {message && <p style={styles.success}>{message}</p>}
+        {msg && <p>{msg}</p>}
 
         <input
-          style={styles.input}
-          placeholder="Enter Author ID"
+          placeholder="Author ID"
           value={id}
-          onChange={(e) => setId(e.target.value)}
+          onChange={e => setId(e.target.value)}
+          style={styles.input}
         />
 
-        <button style={styles.deleteBtn} onClick={deleteAuthor}>
-          Delete Author
-        </button>
-
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/author")}
-        >
-          ⬅ Back
-        </button>
+        <button onClick={deleteAuthor}>Delete</button>
+        <button onClick={() => navigate("/author")}>Back</button>
       </div>
     </div>
   );
 }
+
 
 const styles = {
   page: {

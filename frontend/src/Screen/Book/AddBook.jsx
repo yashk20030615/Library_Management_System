@@ -1,8 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:5000";
+import api from "../../api";
 
 export default function AddBook() {
   const navigate = useNavigate();
@@ -17,98 +15,46 @@ export default function AddBook() {
   const [msg, setMsg] = useState("");
 
   const submit = async () => {
-    setMsg("");
-
-    // ✅ Validation
-    if (
-      !form.title ||
-      !form.genre ||
-      !form.publication_year ||
-      !form.author_id
-    ) {
+    if (!form.title || !form.genre || !form.publication_year || !form.author_id) {
       setMsg("❌ All fields are required");
       return;
     }
 
     try {
-      await axios.post(`${API}/books`, form);
-
+      await api.post("/books", form);
       alert("✅ Book Added Successfully");
-
-      setForm({
-        title: "",
-        genre: "",
-        publication_year: "",
-        author_id: "",
-      });
-
-      navigate("/book"); // redirect to book dashboard
-    } catch (error) {
-      if (error.response?.data?.msg) {
-        setMsg("❌ " + error.response.data.msg);
-      } else {
-        setMsg("❌ Server Error");
-      }
+      navigate("/book");
+    } catch {
+      setMsg("❌ Server Error");
     }
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={styles.title}>📘 Add Book</h2>
+        <h2>📘 Add Book</h2>
 
         {msg && <p style={styles.msg}>{msg}</p>}
 
-        <input
-          style={styles.input}
-          placeholder="Book Title"
-          value={form.title}
-          onChange={(e) =>
-            setForm({ ...form, title: e.target.value })
-          }
-        />
+        <input style={styles.input} placeholder="Title"
+          onChange={e => setForm({ ...form, title: e.target.value })} />
 
-        <input
-          style={styles.input}
-          placeholder="Genre"
-          value={form.genre}
-          onChange={(e) =>
-            setForm({ ...form, genre: e.target.value })
-          }
-        />
+        <input style={styles.input} placeholder="Genre"
+          onChange={e => setForm({ ...form, genre: e.target.value })} />
 
-        <input
-          style={styles.input}
-          placeholder="Publication Year"
-          value={form.publication_year}
-          onChange={(e) =>
-            setForm({ ...form, publication_year: Number(e.target.value) })
-          }
-        />
+        <input style={styles.input} placeholder="Year"
+          onChange={e => setForm({ ...form, publication_year: e.target.value })} />
 
-        <input
-          style={styles.input}
-          placeholder="Author ID"
-          value={form.author_id}
-          onChange={(e) =>
-            setForm({ ...form, author_id: e.target.value })
-          }
-        />
+        <input style={styles.input} placeholder="Author ID"
+          onChange={e => setForm({ ...form, author_id: e.target.value })} />
 
-        <button style={styles.saveBtn} onClick={submit}>
-          Add Book
-        </button>
-
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/book")}
-        >
-          ⬅ Back to Dashboard
-        </button>
+        <button onClick={submit}>Add Book</button>
+        <button onClick={() => navigate("/book")}>Back</button>
       </div>
     </div>
   );
 }
+
 
 /* ================= STYLES ================= */
 

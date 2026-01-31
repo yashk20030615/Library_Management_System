@@ -1,154 +1,35 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../api";
 
 export default function UpdateAuthor() {
   const navigate = useNavigate();
+  const [id, setId] = useState("");
+  const [form, setForm] = useState({ name: "", bio: "", nationality: "" });
 
-  const [authorId, setAuthorId] = useState("");
-  const [form, setForm] = useState({
-    name: "",
-    bio: "",
-    nationality: "",
-  });
-
-  const [found, setFound] = useState(false);
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState(""); // success / error
-
-  // 🔍 FIND AUTHOR
   const findAuthor = async () => {
-    if (!authorId) {
-      setType("error");
-      setMessage("Please enter Author ID");
-      return;
-    }
-
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/authors/${authorId}`
-      );
-
-      setForm({
-        name: res.data.name,
-        bio: res.data.bio,
-        nationality: res.data.nationality,
-      });
-
-      setFound(true);
-      setMessage("");
-    } catch (err) {
-      setFound(false);
-      setType("error");
-      setMessage("Author not found!");
-    }
+    const res = await api.get(`/authors/${id}`);
+    setForm(res.data);
   };
 
-  // ✅ UPDATE AUTHOR
   const updateAuthor = async () => {
-    if (!form.name || !form.bio || !form.nationality) {
-      setType("error");
-      setMessage("All fields are required");
-      return;
-    }
-
-    try {
-      await axios.put(
-        `http://localhost:5000/authors/${authorId}`,
-        form
-      );
-
-      setType("success");
-      setMessage("Author updated successfully!");
-
-      setTimeout(() => {
-        navigate("/author");
-      }, 1500);
-    } catch (err) {
-      setType("error");
-      setMessage("Update failed");
-    }
+    await api.put(`/authors/${id}`, form);
+    alert("Updated");
+    navigate("/author");
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={styles.title}>✏️ Update Author</h2>
+        <input placeholder="Author ID" onChange={e => setId(e.target.value)} />
+        <button onClick={findAuthor}>Find</button>
 
-        {/* MESSAGE */}
-        {message && (
-          <div
-            style={{
-              ...styles.alert,
-              backgroundColor:
-                type === "success" ? "#d4edda" : "#f8d7da",
-              color: type === "success" ? "#155724" : "#721c24",
-            }}
-          >
-            {message}
-          </div>
-        )}
+        <input value={form.name} onChange={e => setForm({...form,name:e.target.value})}/>
+        <input value={form.bio} onChange={e => setForm({...form,bio:e.target.value})}/>
+        <input value={form.nationality} onChange={e => setForm({...form,nationality:e.target.value})}/>
 
-        {/* AUTHOR ID */}
-        <input
-          style={styles.input}
-          placeholder="Enter Author ID"
-          value={authorId}
-          onChange={(e) => setAuthorId(e.target.value)}
-        />
-
-        <button style={styles.findBtn} onClick={findAuthor}>
-          Find
-        </button>
-
-        {/* SHOW ONLY AFTER FIND */}
-        {found && (
-          <>
-            <input
-              style={styles.input}
-              value={form.name}
-              placeholder="Name"
-              onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
-              }
-            />
-
-            <input
-              style={styles.input}
-              value={form.bio}
-              placeholder="Bio"
-              onChange={(e) =>
-                setForm({ ...form, bio: e.target.value })
-              }
-            />
-
-            <input
-              style={styles.input}
-              value={form.nationality}
-              placeholder="Nationality"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  nationality: e.target.value,
-                })
-              }
-            />
-
-            <button
-              style={styles.updateBtn}
-              onClick={updateAuthor}
-            >
-              Update Author
-            </button>
-          </>
-        )}
-
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/author")}
-        >
-          ⬅ Back
-        </button>
+        <button onClick={updateAuthor}>Update</button>
+        <button onClick={() => navigate("/author")}>Back</button>
       </div>
     </div>
   );

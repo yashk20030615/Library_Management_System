@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../api";
 
 export default function DisplayAuthor() {
   const [id, setId] = useState("");
@@ -9,88 +9,38 @@ export default function DisplayAuthor() {
   const navigate = useNavigate();
 
   const getOne = async () => {
-    if (!id) {
-      alert("Enter Author ID");
-      return;
-    }
-
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/authors/${id}`
-      );
-      setData(res.data);
-      setAll([]);
-    } catch (err) {
-      alert(err.response?.data?.msg || "Author not found");
-    }
+    const res = await api.get(`/authors/${id}`);
+    setData(res.data);
+    setAll([]);
   };
 
   const getAll = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/authors");
-      setAll(res.data);
-      setData(null);
-    } catch (err) {
-      alert("Failed to fetch authors");
-    }
+    const res = await api.get("/authors");
+    setAll(res.data);
+    setData(null);
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h2 style={{ marginBottom: "15px" }}>📚 Display Author</h2>
-
         <input
-          placeholder="Enter Author ID"
+          placeholder="Author ID"
           value={id}
-          onChange={(e) => setId(e.target.value)}
-          style={styles.input}
+          onChange={e => setId(e.target.value)}
         />
 
-        <div style={styles.row}>
-          <button
-            style={{ ...styles.btn, ...styles.btnPrimary }}
-            onClick={getOne}
-          >
-            Display
-          </button>
+        <button onClick={getOne}>Display</button>
+        <button onClick={getAll}>Display All</button>
 
-          <button
-            style={{ ...styles.btn, ...styles.btnSecondary }}
-            onClick={getAll}
-          >
-            Display All
-          </button>
-        </div>
+        {data && <p>{data.name}</p>}
+        {all.map(a => <p key={a._id}>{a.name}</p>)}
 
-        {/* Single Author */}
-        {data && (
-          <div style={styles.box}>
-            <p><b>ID:</b> {data.author_id}</p>
-            <p><b>Name:</b> {data.name}</p>
-            <p><b>Bio:</b> {data.bio}</p>
-            <p><b>Nationality:</b> {data.nationality}</p>
-          </div>
-        )}
-
-        {/* All Authors */}
-        {all.map((a) => (
-          <div key={a._id} style={styles.box}>
-            <p><b>ID:</b> {a.author_id}</p>
-            <p><b>Name:</b> {a.name}</p>
-          </div>
-        ))}
-
-        <button
-          style={styles.backBtn}
-          onClick={() => navigate("/author")}
-        >
-          ⬅ Back
-        </button>
+        <button onClick={() => navigate("/author")}>Back</button>
       </div>
     </div>
   );
 }
+
 
 /* ===================== STYLES ===================== */
 

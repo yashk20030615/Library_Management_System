@@ -1,100 +1,33 @@
-import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const API = "http://localhost:5000";
+import api from "../../api";
 
 export default function DisplayBook() {
-  const navigate = useNavigate();
-
   const [title, setTitle] = useState("");
-  const [book, setBook] = useState(null);
-  const [allBooks, setAllBooks] = useState([]);
-  const [msg, setMsg] = useState("");
+  const [books, setBooks] = useState([]);
 
-  // 🔍 Display single book
-  const displayBook = async () => {
-    if (!title) {
-      setMsg("❌ Please enter book title");
-      return;
-    }
-
-    try {
-      const res = await axios.get(`${API}/books/title/${title}`);
-      setBook(res.data);
-      setAllBooks([]);
-      setMsg("");
-    } catch (err) {
-      setBook(null);
-      setMsg("❌ Book not found");
-    }
+  const getOne = async () => {
+    const res = await api.get(`/books/title/${title}`);
+    setBooks([res.data]);
   };
 
-  // 📚 Display all books
-  const displayAll = async () => {
-    try {
-      const res = await axios.get(`${API}/books`);
-      setAllBooks(res.data);
-      setBook(null);
-      setMsg("");
-    } catch (err) {
-      setMsg("❌ Unable to fetch books");
-    }
+  const getAll = async () => {
+    const res = await api.get("/books");
+    setBooks(res.data);
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>📚 Display Book</h2>
+    <div>
+      <input placeholder="Title" onChange={e => setTitle(e.target.value)} />
+      <button onClick={getOne}>Get One</button>
+      <button onClick={getAll}>Get All</button>
 
-        {msg && <p style={styles.msg}>{msg}</p>}
-
-        <input
-          style={styles.input}
-          placeholder="Enter Book Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <div style={styles.btnGroup}>
-          <button style={styles.primary} onClick={displayBook}>
-            Display
-          </button>
-
-          <button style={styles.secondary} onClick={displayAll}>
-            Display All
-          </button>
-        </div>
-
-        {/* SINGLE BOOK */}
-        {book && (
-          <div style={styles.result}>
-            <h4>{book.title}</h4>
-            <p><b>Genre:</b> {book.genre}</p>
-            <p><b>Year:</b> {book.publication_year}</p>
-            <p><b>Author ID:</b> {book.author_id}</p>
-          </div>
-        )}
-
-        {/* ALL BOOKS */}
-        {allBooks.length > 0 &&
-          allBooks.map((b) => (
-            <div key={b._id} style={styles.result}>
-              <h4><strong>Title : </strong>{b.title}</h4>
-              <p><strong>Genre : </strong>{b.genre} | <strong>Publication Year :</strong>{b.publication_year}</p>
-            </div>
-          ))}
-
-        <button
-          style={styles.back}
-          onClick={() => navigate("/book")}
-        >
-          ⬅ Back
-        </button>
-      </div>
+      {books.map(b => (
+        <p key={b._id}>{b.title}</p>
+      ))}
     </div>
   );
 }
+
 
 /* ================= STYLES ================= */
 
